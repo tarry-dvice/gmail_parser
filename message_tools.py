@@ -53,10 +53,13 @@ def get_message_body(service, user_id, msg_id):
             multipart_alternative(data)
 
         elif mime_type == 'multipart/mixed':
-            if mime_type == 'text/plain' or mime_type == 'text/html':
-                text_get(data)
-            elif mime_type == 'multipart/alternative':
-                multipart_alternative(data['parts'][0])
+            for parts in data['parts']:
+                if parts['mimeType'] == 'text/plain' or parts['mimeType'] == 'text/html':
+                    text_get(data)
+                    break
+                elif parts['mimeType'] == 'multipart/alternative':
+                    multipart_alternative(parts[0])
+                    break
 
         else:
             return 'Если ты сюда попал, то ты лох'
