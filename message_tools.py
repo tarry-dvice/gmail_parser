@@ -5,12 +5,26 @@ import email
 
 
 def text_get(data):
+    """
+        Print message body to console
+
+        Args:
+            data: List of message data and metadata
+    """
+
     msg = base64.urlsafe_b64decode(data['body']['data'].encode('ASCII'))
     mime_msg = email.message_from_string(msg.decode('utf-8'))
     print(mime_msg)
 
 
 def multipart_alternative(data):
+    """
+        Filter for multipart/alternative data
+
+        Args:
+            data: List of message data and metadata
+    """
+
     for part in data['parts']:
         mime_type = part['mimeType']
 
@@ -20,18 +34,32 @@ def multipart_alternative(data):
             break
 
 
+def multipart_mixed(data):
+    """
+        Filter for multipart/mixed data
+
+        Args:
+            data: List of message data and metadata
+    """
+
+    for parts in data['parts']:
+        if parts['mimeType'] == 'text/plain' or parts['mimeType'] == 'text/html':
+            text_get(data)
+            break
+        elif parts['mimeType'] == 'multipart/alternative':
+            multipart_alternative(parts[0])
+            break
+
+
 def get_message_body(service, user_id, msg_id):
     """
-    Get a Message body with given ID.
+        Search a Message body with given ID and call function for print data.
 
-    Args:
-        service: Authorized Gmail API service instance.
-        user_id: User's email address. The special value "me"
-            can be used to indicate the authenticated user.
-        msg_id: The ID of the Message required.
-
-    Returns:
-        A Message body.
+        Args:
+            service: Authorized Gmail API service instance.
+            user_id: User's email address. The special value "me"
+                     can be used to indicate the authenticated user.
+            msg_id: The ID of the Message required.
     """
 
     try:
@@ -40,12 +68,6 @@ def get_message_body(service, user_id, msg_id):
         data = message['payload']
         mime_type = data['mimeType']
 
-        for headers in data['headers']:
-            if headers['name'] == 'Subject':
-                print(headers['value'])
-
-                break
-
         if mime_type == 'text/plain' or mime_type == 'text/html':
             text_get(data)
 
@@ -53,16 +75,10 @@ def get_message_body(service, user_id, msg_id):
             multipart_alternative(data)
 
         elif mime_type == 'multipart/mixed':
-            for parts in data['parts']:
-                if parts['mimeType'] == 'text/plain' or parts['mimeType'] == 'text/html':
-                    text_get(data)
-                    break
-                elif parts['mimeType'] == 'multipart/alternative':
-                    multipart_alternative(parts[0])
-                    break
+            multipart_mixed(data)
 
         else:
-            return 'Если ты сюда попал, то ты лох'
+            print('How you did you do this???')
 
     except errors.HttpError as error:
         print('An error occurred: ', error)
@@ -70,18 +86,18 @@ def get_message_body(service, user_id, msg_id):
 
 def list_messages_with_labels(service, user_id, label_id):
     """
-    List all Messages of the user's mailbox with label_ids applied.
+        List all Messages of the user's mailbox with label_ids applied.
 
-    Args:
-        service: Authorized Gmail API service instance.
-        user_id: User's email address. The special value "me"
-        can be used to indicate the authenticated user.
-        label_id: Only return Messages with this labelIds applied.
+        Args:
+            service: Authorized Gmail API service instance.
+            user_id: User's email address. The special value "me"
+            can be used to indicate the authenticated user.
+            label_id: Only return Messages with this labelIds applied.
 
-    Returns:
-        List of Messages that have all required Labels applied. Note that the
-        returned list contains Message IDs, you must use get with the
-        appropriate id to get the details of a Message.
+        Returns:
+            List of Messages that have all required Labels applied. Note that the
+            returned list contains Message IDs, you must use get with the
+            appropriate id to get the details of a Message.
     """
 
     try:

@@ -1,4 +1,5 @@
-"""Get a list of Labels from the user's mailbox.
+"""
+    Get a list of Labels from the user's mailbox.
 """
 
 from apiclient import errors
@@ -6,15 +7,16 @@ from apiclient import errors
 
 def get__label_id(service, user_id, label_name):
     """
-    Get a list all labels in the user's mailbox.
+        Get a list all labels in the user's mailbox.
 
-    Args:
-        service: Authorized Gmail API service instance.
-        user_id: User's email address. The special value "me"
-        can be used to indicate the authenticated user.
+        Args:
+            service: Authorized Gmail API service instance.
+            user_id: User's email address. The special value "me"
+                     can be used to indicate the authenticated user.
+            label_name: Label name of message
 
-    Returns:
-        A list all Labels in the user's mailbox.
+        Returns:
+            A list all Labels in the user's mailbox.
     """
 
     try:
