@@ -26,6 +26,9 @@ def main():
     for msg in list_messages_with_labels(service, user_id, label_id):
         get_message_body(service, user_id, msg['id'], f)
 
+        f.write('================================')
+        f.write('================================')
+
     f.close()
 
 

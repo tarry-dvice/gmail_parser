@@ -9,3 +9,4 @@ class TestUnit:
 
         for label in labels:
             assert(label['id'] == get_label_id(labels, label['name']))
+
