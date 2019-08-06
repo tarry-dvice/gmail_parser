@@ -1,3 +1,3 @@
 # gmail_parser
-This script sent body of google mail
-https://developers.google.com/gmail/api/guides/
+The script to get the body of gmail letters for a specific label 
+Gmail API guide: https://developers.google.com/gmail/api/guides/

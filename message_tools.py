@@ -4,54 +4,30 @@ import base64
 import email
 
 
-def text_get(data):
-    """
-        Print message body to console
+def get_message_body_text(data, f):
+    mime_type = data['mimeType']
 
-        Args:
-            data: List of message data and metadata
-    """
+    if mime_type == 'text/plain' or mime_type == 'text/html':
+        if data['body']['size'] == 0:
+            if data['parts'][0]['body']['size'] != 0:
+                if data['parts'][0]['mimeType'] == 'text/plain' or data['parts'][0]['mimeType'] == 'text/html':
+                    data = data['parts'][0]
 
-    msg = base64.urlsafe_b64decode(data['body']['data'].encode('ASCII'))
-    mime_msg = email.message_from_string(msg.decode('utf-8'))
-    print(mime_msg)
+        try:
+            msg = base64.urlsafe_b64decode(data['body']['data'].encode('ASCII'))
+            mime_msg = email.message_from_string(msg.decode('utf-8'))
 
+            f.write(str(mime_msg))
 
-def multipart_alternative(data):
-    """
-        Filter for multipart/alternative data
+        except KeyError:
+            # For non-text messages
+            pass
 
-        Args:
-            data: List of message data and metadata
-    """
-
-    for part in data['parts']:
-        mime_type = part['mimeType']
-
-        if mime_type == 'text/plain' or mime_type == 'text/html':
-            text_get(part)
-
-            break
+    elif mime_type == 'multipart/alternative' or mime_type == 'multipart/mixed':
+        get_message_body_text(data['parts'][0], f)
 
 
-def multipart_mixed(data):
-    """
-        Filter for multipart/mixed data
-
-        Args:
-            data: List of message data and metadata
-    """
-
-    for parts in data['parts']:
-        if parts['mimeType'] == 'text/plain' or parts['mimeType'] == 'text/html':
-            text_get(data)
-            break
-        elif parts['mimeType'] == 'multipart/alternative':
-            multipart_alternative(parts[0])
-            break
-
-
-def get_message_body(service, user_id, msg_id):
+def get_message_body(service, user_id, msg_id, f):
     """
         Search a Message body with given ID and call function for print data.
 
@@ -66,19 +42,8 @@ def get_message_body(service, user_id, msg_id):
         message = service.users().messages().get(userId=user_id, id=msg_id).execute()
 
         data = message['payload']
-        mime_type = data['mimeType']
 
-        if mime_type == 'text/plain' or mime_type == 'text/html':
-            text_get(data)
-
-        elif mime_type == 'multipart/alternative':
-            multipart_alternative(data)
-
-        elif mime_type == 'multipart/mixed':
-            multipart_mixed(data)
-
-        else:
-            print('How you did you do this???')
+        get_message_body_text(data, f)
 
     except errors.HttpError as error:
         print('An error occurred: ', error)
