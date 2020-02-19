@@ -15,4 +15,4 @@ Output writes to out.txt file in the project directory
 ## Tests
 Tests written with pytest module
 To run tests use command in project directory:
-> py.test
+> pytest
