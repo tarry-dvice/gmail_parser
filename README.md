@@ -7,7 +7,7 @@ Manual: https://developers.google.com/gmail/api/quickstart/python
 ## Usage
 Run main.py script in terminal.
 Example for Unix-like systems:
-> python main.txt
+> python main.py
 
 ## Output
 Output writes to out.txt file in the project directory
